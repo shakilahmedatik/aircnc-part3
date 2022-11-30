@@ -9,14 +9,19 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const app = express()
 const port = process.env.PORT || 8000
 
-// middlewares
-const corsConfig = {
-  origin: '',
+// Middlewares
+const whitelist = ['http://localhost:3000', 'https://aircnc-a740e.web.app']
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }
-app.use(cors(corsConfig))
-app.options('', cors(corsConfig))
+app.use(cors(corsOptions))
 app.use(express.json())
 
 // Decode JWT
